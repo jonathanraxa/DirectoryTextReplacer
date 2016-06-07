@@ -1,21 +1,28 @@
 #!/usr/bin/ruby
+directory = ""
+arg2 = "" 
+arg3 = ""
 
-directory = ARGV[0]
-arg2 = ARGV[1]
-arg3 = ARGV[2]
+# Get user input
+print "Directory name: "
+directory = gets.chomp()
 
+print "To Replace: "
+arg2 = gets.chomp()
 
-# check to determine if argument is a directory
+print "Replace With: "
+arg3 = gets.chomp()
+
+#Check to determine if argument is a directory
 if (File::directory?( directory ))
   print "Success, processing directory: " + directory
 else
   print "Sorry, not a directory"
-
 end
 
 puts 
 
-# GLOB (cfm, asp, html)
+# GLOB files handled: txt,cfm,html,asp,js,php
 Dir.glob(directory+"**/**/*.{txt,cfm,html,asp,js,php}") do |file|
 	puts "Searching: #{file}"
 	
