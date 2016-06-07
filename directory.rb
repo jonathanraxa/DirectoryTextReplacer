@@ -16,7 +16,7 @@ end
 puts 
 
 # GLOB (cfm, asp, html)
-Dir.glob(directory+"/**.txt") do |file|
+Dir.glob(directory+"**/**/*.{txt,cfm,html,asp,js,php}") do |file|
 	puts "Searching: #{file}"
 	
 	File.open(file) { |source_file|
@@ -28,15 +28,3 @@ end # end Dir.glob
 
 
 
-# where the magic happens to each file within the directory
-# Dir.foreach(directory){
-#   |files|
-  
-# 	if(files != '.' && files != '..')
-# 	  File.open(directory+'/'+files) { |source_file|
-# 	  contents = source_file.read
-# 	  contents.gsub!(arg2, arg3)
-# 	  File.open(directory+'/'+files, "w+") { |f| f.write(contents) }
-# 	}    
-#   end # end if-statement
-# } # end Dir foreach 
