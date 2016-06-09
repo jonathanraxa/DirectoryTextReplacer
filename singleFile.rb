@@ -36,10 +36,9 @@ end
 file.close
 
 # CREATE AN ARRAY OF CIDS TO BE REPLACED
+# not entirely necessary but may be useful for future use
 temp_cids = cids.reject { |a| a.nil? }
-
-puts 
-
+puts
 old1 = temp_cids[1]
 old2 = temp_cids[2]
 old3 = temp_cids[3]
