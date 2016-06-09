@@ -5,14 +5,18 @@ oldAffid = ""
 newAffid = ""
 new_cids = Array.new(6)
 your_file = ARGV[0]
-
+oldCulture = ""
+newCulture = ""
 # NEW CIDS TO REPLACE OLD ONES
 newCid1 = ""
 newCid2 = ""
 newCid3 = ""
 
-print "affid: "
-newAffid = $stdin.gets.chomp() 
+print "culture (ie. es-us): "
+newCulture = $stdin.gets.chomp() 
+
+# print "affid: "
+# newAffid = $stdin.gets.chomp() 
 
 # print "CID 1: "
 # newCid1 = $stdin.gets.chomp()
@@ -26,7 +30,7 @@ newAffid = $stdin.gets.chomp()
 newCid1.to_s
 newCid2.to_s
 newCid3.to_s
-
+puts
 puts "Opening file: #{your_file}"
 file = File.open(your_file)
 
@@ -49,10 +53,15 @@ puts "Current AFFID: " + oldAffid
 
 
 # http://home.mcafee.com/root/campaign.aspx?culture=en-NZ&affid=1144&cid=78979
-txt.scan(/culture=\d\d\d\d/) do |line|
-     line.split("=")
-     affid = (line[6..9])
+txt.match(/[culture=]+([en]{2}|[pt]{2}|[es]{2})[\-]{1}[a-zA-Z]{2}/) do |line|
+     # puts line
+     newline = line.to_s.split("=")
+     oldCulture = (newline[1])
 end
+
+puts 
+puts "Current Culture: " + oldCulture
+
 
 
 
@@ -82,26 +91,16 @@ puts newCid3
 
 
 
-# HANDLE FOR AFFID
-
-
-
-# HANDLE FOR COUNTRY 
-
-
-
-
-
-#WHERE ALL CIDs ARE REPLACED
+#WHERE ALL CIDs/AFFID/CULTURE CODES ARE REPLACED
 files = Dir[your_file]
 files.each do |filename|
   file_content = IO.read(filename)
 
-	  # file_content.gsub!(old1,newCid1)
-	  # file_content.gsub!(old2,newCid2)
-	  # file_content.gsub!(old3,newCid3)
-	
-		file_content.gsub!(oldAffid,newAffid)
+	file_content.gsub!(old1,newCid1)
+	file_content.gsub!(old2,newCid2)
+	file_content.gsub!(old3,newCid3)
+	file_content.gsub!(oldAffid,newAffid)
+	file_content.gsub!(oldCulture, newCulture)
 
   output = File.open(filename,'w')
   output.write(file_content)
