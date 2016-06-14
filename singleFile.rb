@@ -23,14 +23,14 @@ newStrikePrice2 = ""
 newStrikePrice3 = ""
 oldCountry = ""
 newCountry = ""
-
+oldPercentOff = ""
 
 # NEED TO CHANGE NUMBERS TO STRINGS
 newCid1.to_s
 newCid2.to_s
 newCid3.to_s
 
-file = File.open(your_file)
+file = File.open(your_file+".html")
 txt = file.read()
 
 # SPLITS CID AT "=" AND PUSHES NUMBER TO ARRAY
@@ -46,10 +46,12 @@ end
 
 
 # FOR SOME REASON MATCH WORKS INSTEAD OF SCAN
-txt.match(/[culture=]+([en]{2}|[pt]{2}|[es]{2})[\-]{1}[a-zA-Z]{2}/) do |line|
+txt.match(/culture=[a-zA-Z]{2}-[a-zA-Z]{2}/) do |line|
      newline = line.to_s.split("=")
      oldCulture = (newline[1])
 end
+
+
 
 # SCAN FOR PRICES
 txt.scan(/[a-zA-Z]*[$]\d*.\d*/) do |line|
@@ -66,12 +68,20 @@ txt.match(/[A-Z]*[$]\d*/) do |line|
 end
 
 
+# PERCENT OFF
+txt.scan(/\d\d%\s/) do |line|
+  newline = line.to_s.split("%")
+  oldPercentOff = (newline[0])
+end
+
+
+
 oldPrices = tempOldPrices.reject { |a| a.nil? }
 
 
-oldPrices.each_with_index do |price, index|
-  puts "ALL PRICES: #{index}: #{price}"
-end
+# oldPrices.each_with_index do |price, index|
+#   puts "ALL PRICES: #{index}: #{price}"
+# end
 
 oldPrice1 = oldPrices[0]
 oldPrice2 = oldPrices[6]
@@ -102,7 +112,7 @@ print "Current Country: #{oldCountry}\n\n"
 print "Current Prices\n" + "#{oldPrice1}\n#{oldPrice2}\n#{oldPrice3}\n\n" 
 print "Current MSRP Prices\n" + "#{strikePrice1}\n#{strikePrice2}\n#{strikePrice3}\n\n" 
 print "Current AFFID: " + oldAffid + "\n\n" 
-print "Current Culture: " + oldCulture + "\n\n"
+print "Current Culture: " + oldCulture.to_s + "\n\n"
 print "Current CIDs\n" + "1) #{oldCid1}\n2) #{oldCid2}\n3) #{oldCid3}\n\n" 
 print "_________________NEW INPUTS_________________\n\n"
 
@@ -145,6 +155,21 @@ newStrikePrice2 = $stdin.gets.chomp()
 print "MSRP 3: "
 newStrikePrice3 = $stdin.gets.chomp()
 
+
+# ALL THIS ORDEAL FOR A PERCENTAGE CALCULATION
+newPercentOff = 0.0
+newPercentOff = [newPrice1.to_f / newStrikePrice1.to_f]*100
+newPercentOff = (newPercentOff[0]*10).ceil/10.0
+newPercentOff = newPercentOff*100
+newPercentOff = 100-newPercentOff
+newPercentOff = newPercentOff.to_i
+
+oldPercentOff = oldPercentOff.to_s+"%"+" "
+newPercentOff = newPercentOff.to_s+"%"+" "
+
+puts "OLDPERCENT OFF: " + oldPercentOff
+puts "NEW PERCENT OFF: " + newPercentOff
+
 # PRICE ON HOW MUCH YOU'LL BE SAVING
 newSavePrice1 = newStrikePrice1.to_i - newPrice1.to_i
 newSavePrice2 = newStrikePrice2.to_i - newPrice2.to_i
@@ -165,6 +190,8 @@ newPrice3 = newCountry+"$"+newPrice3
 newStrikePrice1 = newCountry+"$"+newStrikePrice1
 newStrikePrice2 = newCountry+"$"+newStrikePrice2
 newStrikePrice3 = newCountry+"$"+newStrikePrice3
+
+ 
 
 # CULTURE CODE
 print "New culture (ie. es-us): "
@@ -193,7 +220,7 @@ puts "2) " + newCid2
 puts "3) " + newCid3
 
 # WHERE ALL CIDs/AFFID/CULTURE CODES ARE REPLACED
-files = Dir[your_file]
+files = Dir[your_file+".html"]
 files.each do |filename|
   file_content = IO.read(filename)
 
@@ -201,7 +228,7 @@ files.each do |filename|
 	file_content.gsub!(oldCid2,newCid2)
 	file_content.gsub!(oldCid3,newCid3)
 	file_content.gsub!(oldAffid,newAffid)
-	file_content.gsub!(oldCulture, newCulture)
+	file_content.gsub!(oldCulture.to_s, newCulture.to_s)
 	file_content.gsub!(oldPrice1, newPrice1)
 	file_content.gsub!(oldPrice2, newPrice2)
 	file_content.gsub!(oldPrice3, newPrice3)
@@ -213,6 +240,8 @@ files.each do |filename|
   file_content.gsub!(oldSavePrice1, newSavePrice1)
   file_content.gsub!(oldSavePrice2, newSavePrice2)
   file_content.gsub!(oldSavePrice3, newSavePrice3)
+
+  file_content.gsub!(oldPercentOff, newPercentOff)
 
 
   output = File.open(filename,'w')
