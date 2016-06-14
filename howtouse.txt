@@ -1,6 +1,3 @@
-# DirectoryTextReplacer
-Replaces all instances of a word/text across all files within a directory
-
 1) Place the script in a directory containing the files that you want to modify
 
 2) Ensure that the command prompt is prompted in the directory in which you are modifiying the file. You can do this by:
