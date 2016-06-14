@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-
+# TODO - HANDLE EMPTY VALUES by the USER
 cids = Array.new(6)
 tempOldPrices = Array.new(6)
 oldPrices = Array.new(6)
@@ -52,10 +52,12 @@ txt.match(/[culture=]+([en]{2}|[pt]{2}|[es]{2})[\-]{1}[a-zA-Z]{2}/) do |line|
 end
 
 # SCAN FOR PRICES
-txt.scan(/[a-zA-Z]*[$]\d*.\d{2}/) do |line|
+txt.scan(/[a-zA-Z]*[$]\d*.\d*/) do |line|
      newline = line.to_s.split("$")
      tempOldPrices.push(newline[1])
 end
+
+
 
 # TAKING THE COUNTRY INITIALS (ie. NZ)
 txt.match(/[A-Z]*[$]\d*/) do |line|
@@ -67,15 +69,21 @@ end
 oldPrices = tempOldPrices.reject { |a| a.nil? }
 
 
-oldPrice1 = oldPrices[3]
-oldPrice2 = oldPrices[5]
-oldPrice3 = oldPrices[7]
+oldPrices.each_with_index do |price, index|
+  puts "ALL PRICES: #{index}: #{price}"
+end
 
+oldPrice1 = oldPrices[0]
+oldPrice2 = oldPrices[6]
+oldPrice3 = oldPrices[9]
 
-strikePrice1 = oldPrices[2]
-strikePrice2 = oldPrices[4]
-strikePrice3 = oldPrices[6]
+strikePrice1 = oldPrices[1]
+strikePrice2 = oldPrices[5]
+strikePrice3 = oldPrices[8]
 
+oldSavePrice1 = oldPrices[4].gsub("<", "")
+oldSavePrice2 = oldPrices[7].gsub("<", "")
+oldSavePrice3 = oldPrices[10].gsub("<", "")
 
 file.close
 
@@ -98,56 +106,74 @@ print "Current Culture: " + oldCulture + "\n\n"
 print "Current CIDs\n" + "1) #{oldCid1}\n2) #{oldCid2}\n3) #{oldCid3}\n\n" 
 print "_________________NEW INPUTS_________________\n\n"
 
-# # USER INPUTS 
-print "Country: "
-newCountry = $stdin.gets.chomp()
+oldSavePrice1 = oldCountry+"$"+oldSavePrice1
+oldSavePrice2 = oldCountry+"$"+oldSavePrice2
+oldSavePrice3 = oldCountry+"$"+oldSavePrice3
 
-print "PRICE 1: "
-newPrice1 = $stdin.gets.chomp() 
-newPrice1 = newCountry+"$"+newPrice1
+oldPrice1     = oldCountry+"$"+oldPrice1
+oldPrice2     = oldCountry+"$"+oldPrice2
+oldPrice3     = oldCountry+"$"+oldPrice3
 
-print "PRICE 2: "
-newPrice2 = $stdin.gets.chomp() 
-newPrice2 = newCountry+"$"+newPrice2
-
-print "PRICE 3: "
-newPrice3 = $stdin.gets.chomp() 
-newPrice3 = newCountry+"$"+newPrice3
-
-oldPrice1 	 = oldCountry+"$"+oldPrice1
-oldPrice2 	 = oldCountry+"$"+oldPrice2
-oldPrice3 	 = oldCountry+"$"+oldPrice3
-
-strikePrice1 = oldCountry+"$"+oldPrice1
-strikePrice2 = oldCountry+"$"+oldPrice2
-strikePrice3 = oldCountry+"$"+oldPrice3
+strikePrice1  = oldCountry+"$"+ strikePrice1
+strikePrice2  = oldCountry+"$"+ strikePrice2
+strikePrice3  = oldCountry+"$"+ strikePrice3
 
 puts
 
-puts newPrice1
-puts newPrice2
-puts newPrice3
+# USER INPUTS 
 
+print "Country Price (ie. NZ$79.95): "
+newCountry = $stdin.gets.chomp()
 
-print "MSRP 1: "
+# PACKAGE PRICES
+print "PRICE 1 (ie. 75.95): "
+newPrice1 = $stdin.gets.chomp() 
+
+print "PRICE 2: "
+newPrice2 = $stdin.gets.chomp() 
+
+print "PRICE 3: "
+newPrice3 = $stdin.gets.chomp() 
+
+# MSRP PRICES
+print "MSRP 1 (ie. 75.95): "
 newStrikePrice1 = $stdin.gets.chomp()
-newStrikePrice1 = newCountry+"$"+newStrikePrice1
 
 print "MSRP 2: "
 newStrikePrice2 = $stdin.gets.chomp()
-newStrikePrice2 = newCountry+"$"+newStrikePrice2
 
 print "MSRP 3: "
 newStrikePrice3 = $stdin.gets.chomp()
+
+# PRICE ON HOW MUCH YOU'LL BE SAVING
+newSavePrice1 = newStrikePrice1.to_i - newPrice1.to_i
+newSavePrice2 = newStrikePrice2.to_i - newPrice2.to_i
+newSavePrice3 = newStrikePrice3.to_i - newPrice3.to_i
+
+newSavePrice1 = newCountry+"$"+newSavePrice1.to_s
+newSavePrice2 = newCountry+"$"+newSavePrice2.to_s
+newSavePrice3 = newCountry+"$"+newSavePrice3.to_s
+
+puts "Save1: " + newSavePrice1.to_s
+puts "Save2: " + newSavePrice2.to_s
+puts "Save3: " + newSavePrice3.to_s
+
+newPrice1 = newCountry+"$"+newPrice1
+newPrice2 = newCountry+"$"+newPrice2
+newPrice3 = newCountry+"$"+newPrice3
+
+newStrikePrice1 = newCountry+"$"+newStrikePrice1
+newStrikePrice2 = newCountry+"$"+newStrikePrice2
 newStrikePrice3 = newCountry+"$"+newStrikePrice3
 
+# CULTURE CODE
 print "New culture (ie. es-us): "
 newCulture = $stdin.gets.chomp() 
 
-print "New affid: "
+print "New affid (ie. 1114): "
 newAffid = $stdin.gets.chomp() 
 
-print "New CID 1: "
+print "New CID 1 (ie. 4562548): "
 newCid1 = $stdin.gets.chomp()
 
 print "New CID 2: "
@@ -179,10 +205,15 @@ files.each do |filename|
 	file_content.gsub!(oldPrice1, newPrice1)
 	file_content.gsub!(oldPrice2, newPrice2)
 	file_content.gsub!(oldPrice3, newPrice3)
+
 	file_content.gsub!(strikePrice1, newStrikePrice1)
 	file_content.gsub!(strikePrice2, newStrikePrice2)
 	file_content.gsub!(strikePrice3, newStrikePrice3)
 	
+  file_content.gsub!(oldSavePrice1, newSavePrice1)
+  file_content.gsub!(oldSavePrice2, newSavePrice2)
+  file_content.gsub!(oldSavePrice3, newSavePrice3)
+
 
   output = File.open(filename,'w')
   output.write(file_content)
