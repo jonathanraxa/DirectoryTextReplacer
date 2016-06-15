@@ -6,6 +6,7 @@ SINGLEFILE.RB (McAfee Pages)
 - These pages are structured in a such a way as to enable us to capture specific values from the page in order for us to change them. 
 
 HOW TO USE
+
 1) Place the script in a directory containing the files that you want to modify
 
 2) Ensure that the command prompt is prompted in the directory in which you are modifiying the file. You can do this by:
