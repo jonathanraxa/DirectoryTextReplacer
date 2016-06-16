@@ -4,7 +4,7 @@
 cids = Array.new(6)
 tempOldPrices = Array.new(6)
 oldPrices = Array.new(6)
-new_cids = Array.new(6)
+# new_cids = Array.new(6)
 your_file = ARGV[0]
 oldAffid = ""
 newAffid = ""
@@ -112,6 +112,7 @@ print "_________________NEW INPUTS_________________\n\n\n"
 
 print "IF NO CHANGE TO VALUE, TYPE 'no' TO SKIP SECTION \n\n"
 
+# DEFINE ALL THE OLD VALUES WITHIN THE PAGE WITH COUNTRY AND MONEY SYMBOL
 oldSavePrice1 = oldCountry+"$"+oldSavePrice1
 oldSavePrice2 = oldCountry+"$"+oldSavePrice2
 oldSavePrice3 = oldCountry+"$"+oldSavePrice3
@@ -207,7 +208,7 @@ if ( newStrikePrice1 == "" && newPrice1 == "" )
 else
     newPercentOff = 0.0
     newPercentOff = [newPrice1.to_f / newStrikePrice1.to_f]*100
-    newPercentOff = (newPercentOff[0]*10).ceil/10.0
+    newPercentOff = (newPercentOff[0]*10).round/10.0
     newPercentOff = newPercentOff*100
     newPercentOff = 100-newPercentOff
     newPercentOff = newPercentOff.to_i
