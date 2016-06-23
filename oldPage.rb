@@ -1,13 +1,6 @@
 #!/usr/bin/env ruby
 # AUTHOR - Jonathan Raxa
 
-require 'rubygems'
-require 'roo'
-
-xlsx = Roo::Spreadsheet.open('new.xlsx')
-xlsx = Roo::Excelx.new("new.xlsx")
-
-
 cids = Array.new(6)
 tempOldPrices = Array.new(6)
 oldPrices = Array.new(6)
@@ -35,6 +28,8 @@ oldCountry = ""
 newCountry = ""
 oldPercentOff = ""
 newPercentOff = ""
+secondNum = ""
+newSecondNum = ""
 
 # NEED TO CHANGE NUMBERS TO STRINGS
 newCid1.to_s
@@ -43,6 +38,14 @@ newCid3.to_s
 
 file = File.open(your_file)
 txt = file.read()
+
+
+# LOOKS FOR THE 99 THAT'S HARD CODED IN
+txt.scan(/>\s*\d\d\s*</) do |line|
+  secondNum = line
+end
+
+puts "Second Num: " + secondNum
 
 # SPLITS CID AT "=" AND PUSHES NUMBER TO ARRAY
 txt.scan(/cid=\d\d\d\d\d\d/) do |line|
@@ -80,18 +83,23 @@ txt.scan(/\d\d%\s/) do |line|
 end
 
 oldPrices = tempOldPrices.reject { |a| a.nil? }
+oldPrices.reject! {|item| item =~ /\(/ }
 
-oldPrice1 = oldPrices[0].gsub("<", "")
-oldPrice2 = oldPrices[6].gsub("<", "")
-oldPrice3 = oldPrices[9].gsub("<", "")
+puts oldPrices
 
-strikePrice1 = oldPrices[1].gsub("<", "")
-strikePrice2 = oldPrices[5].gsub("<", "")
-strikePrice3 = oldPrices[8].gsub("<", "")
+topOldPrice = oldPrices[1].gsub("<", "")
 
-oldSavePrice1 = oldPrices[4].gsub("<", "")
-oldSavePrice2 = oldPrices[7].gsub("<", "")
-oldSavePrice3 = oldPrices[10].gsub("<", "")
+oldPrice1 = oldPrices[4].gsub("<", "")
+oldPrice2 = oldPrices[7].gsub("<", "")
+oldPrice3 = oldPrices[10].gsub("<", "")
+
+strikePrice1 = oldPrices[3].gsub("<", "")
+strikePrice2 = oldPrices[6].gsub("<", "")
+strikePrice3 = oldPrices[9].gsub("<", "")
+
+oldSavePrice1 = oldPrices[5].gsub("<", "")
+oldSavePrice2 = oldPrices[8].gsub("<", "")
+oldSavePrice3 = oldPrices[11].gsub("<", "")
 
 file.close
 
@@ -122,66 +130,126 @@ print "_________________YOUR INPUTS_________________\n\n\n"
 print "IF NO CHANGE TO VALUE, TYPE 'no' TO SKIP SECTION \n\n"
 
 # DEFINE ALL THE OLD VALUES WITHIN THE PAGE WITH COUNTRY AND MONEY SYMBOL
-oldSavePrice1 = oldCountry+"$"+oldSavePrice1
-oldSavePrice2 = oldCountry+"$"+oldSavePrice2
-oldSavePrice3 = oldCountry+"$"+oldSavePrice3
+topOldPrice   = oldCountry.to_s+"$"+topOldPrice
 
-oldPrice1     = oldCountry+"$"+oldPrice1
-oldPrice2     = oldCountry+"$"+oldPrice2
-oldPrice3     = oldCountry+"$"+oldPrice3
+oldSavePrice1 = oldCountry.to_s+"$"+oldSavePrice1
+oldSavePrice2 = oldCountry.to_s+"$"+oldSavePrice2
+oldSavePrice3 = oldCountry.to_s+"$"+oldSavePrice3
 
-strikePrice1  = oldCountry+"$"+ strikePrice1
-strikePrice2  = oldCountry+"$"+ strikePrice2
-strikePrice3  = oldCountry+"$"+ strikePrice3
+oldPrice1     = oldCountry.to_s+"$"+oldPrice1
+oldPrice2     = oldCountry.to_s+"$"+oldPrice2
+oldPrice3     = oldCountry.to_s+"$"+oldPrice3
+
+strikePrice1  = oldCountry.to_s+"$"+ strikePrice1
+strikePrice2  = oldCountry.to_s+"$"+ strikePrice2
+strikePrice3  = oldCountry.to_s+"$"+ strikePrice3
 
 puts
 
+# USER INPUTS 
+while newCountry.empty?
+  print "Country INITIALS for PRICE (ie. 'NZ' for NZ$79.95): "
+  newCountry = $stdin.gets.chomp()
+  if newCountry == "no"
+    newCountry = ""
+    p "no value"
+    break
+  end
+end
 
-values = Hash.new
-values['Price1']       = xlsx.cell(2,'B')
-values['Price2']       = xlsx.cell(3,'B')
-values['Price3']       = xlsx.cell(4,'B')
-values['Culture'] 	   = xlsx.cell(2,'D')
-values['CultureCode']  = xlsx.cell(2,'E')
-values['Affiliate']    = xlsx.cell(2,'F')
-values['CampaignID1']  = xlsx.cell(2,'G')
-values['CampaignID2']  = xlsx.cell(3,'G')
-values['CampaignID3']  = xlsx.cell(4,'G')
-values['MSRP1']  	   = xlsx.cell(2,'C')
-values['MSRP2']  	   = xlsx.cell(3,'C')
-values['MSRP3']  	   = xlsx.cell(4,'C')
+# PACKAGE PRICES - MTP, MAS, etc
+while newPrice1.empty? 
+  print "PRICE 1 (ie. 75.95): "
+  newPrice1 = $stdin.gets.chomp() 
+  if newPrice1 == "no"
+    newPrice1 = ""
+    p "no value"
+    break
+  end
+end
 
-puts 
-newCulture 		= values['CultureCode'].to_s
-newAffid		= values['Affiliate'].to_s
-newCountry 		= values['Culture'].to_s 
-newPrice1 		= values['Price1'].to_s
-newPrice2 		= values['Price2'].to_s
-newPrice3 		= values['Price3'].to_s
-newStrikePrice1 = values['MSRP1'].to_s
-newStrikePrice2 = values['MSRP2'].to_s
-newStrikePrice3 = values['MSRP3'].to_s
-newCid1 		= values['CampaignID1'].to_s
-newCid2 		= values['CampaignID2'].to_s
-newCid3 		= values['CampaignID3'].to_s
+# DISTINGUISHING THE TOP PORTION OF THE PAGE
+if (!newPrice1.empty?)
+  newSecondNum = newPrice1.split(".")
+  topNewPrice  = newSecondNum[0]
+  newSecondNum = newSecondNum[1]
+  newSecondNum = '>' + newSecondNum + '<'
+end
+topNewPrice = newCountry.to_s+"$"+topNewPrice
+puts topNewPrice
+puts secondNum
+puts newSecondNum
+puts newPrice1
 
+while newPrice2.empty? 
+  print "PRICE 2: "
+  newPrice2 = $stdin.gets.chomp() 
+  if newPrice2 == "no"
+    newPrice2 = ""
+    p "no value"
+    break
+  end
+end
+
+while newPrice3.empty?
+  print "PRICE 3: "
+  newPrice3 = $stdin.gets.chomp() 
+  if newPrice3 == "no"
+    newPrice3 = ""
+    p "no value"
+    break
+  end
+end
+
+
+# MSRP PRICES
+while newStrikePrice1.empty?
+  print "MSRP 1 (ie. 75.95): "
+  newStrikePrice1 = $stdin.gets.chomp()
+  if newStrikePrice1 == "no"
+    newStrikePrice1 = ""
+    p "no value"
+    break
+  end
+end
+
+while newStrikePrice2.empty?
+  print "MSRP 2: "
+  newStrikePrice2 = $stdin.gets.chomp()
+  if newStrikePrice2 == "no"
+    newStrikePrice2 = ""
+    p "no value"
+    break
+  end
+end
+
+while newStrikePrice3.empty?
+  print "MSRP 3: "
+  newStrikePrice3 = $stdin.gets.chomp()
+  if newStrikePrice3 == "no"
+    newStrikePrice3 = ""
+    p "no value"
+    break
+  end
+end
 
 # ALL THIS ORDEAL FOR A PERCENTAGE CALCULATION
-if ( newStrikePrice1 == "" && newPrice1 == "" )
+# if ( newStrikePrice1 == "" && newPrice1 == "" )
 
 
-else
-    newPercentOff = 0.0
-    newPercentOff = [newPrice1.to_f / newStrikePrice1.to_f]*100
-    newPercentOff = (newPercentOff[0]*10).round/10.0
-    newPercentOff = newPercentOff*100
-    newPercentOff = 100-newPercentOff
-    newPercentOff = newPercentOff.to_i
-    oldPercentOff = oldPercentOff.to_s+"%"+" "
-    newPercentOff = newPercentOff.to_s+"%"+" "
+# else
+#     newPercentOff = 0.0
+#     newPercentOff = [newPrice1.to_f / newStrikePrice1.to_f]*100
+#     newPercentOff = (newPercentOff[0]*10).round/10.0
+#     newPercentOff = newPercentOff*100
+#     newPercentOff = 100-newPercentOff
+#     newPercentOff = newPercentOff.to_i
+#     oldPercentOff = oldPercentOff.to_s+"%"+" "
+#     newPercentOff = newPercentOff.to_s+"%"+" "
+#     newSavePrice1 = newStrikePrice1.to_i - newPrice1.to_i
+
+# end
     newSavePrice1 = newStrikePrice1.to_i - newPrice1.to_i
-
-end
 
     # PRICE ON HOW MUCH YOU'LL BE SAVING
     if (newStrikePrice2 == "" && newPrice2 == "") then else newSavePrice2 = newStrikePrice2.to_i - newPrice2.to_i end
@@ -189,7 +257,7 @@ end
     if (newSavePrice1 == "") then else newSavePrice1 = newCountry+"$"+newSavePrice1.to_s end
     if (newSavePrice2 == "") then else newSavePrice2 = newCountry+"$"+newSavePrice2.to_s end
     if (newSavePrice3 == "") then else newSavePrice3 = newCountry+"$"+newSavePrice3.to_s end
-    if (newPrice1 == "") then else newPrice1 = newCountry+"$"+newPrice1 end
+    if (newPrice1 == "") then else newPrice1 = newCountry.to_s+"$"+newPrice1 end
     if (newPrice2 == "") then else newPrice2 = newCountry+"$"+newPrice2 end
     if (newPrice3 == "") then else newPrice3 = newCountry+"$"+newPrice3 end
     if (newStrikePrice1 == "") then else newStrikePrice1 = newCountry+"$"+newStrikePrice1 end
@@ -197,11 +265,77 @@ end
     if (newStrikePrice3 == "") then else newStrikePrice3 = newCountry+"$"+newStrikePrice3 end
 
 
+# CULTURE CODE
+while newCulture.empty?
+  print "New culture (ie. es-us): "
+  newCulture = $stdin.gets.chomp()
+  if newCulture == "no"
+    newCulture = ""
+    p "no value"
+    break
+  end 
+end
+
+while newAffid.empty?
+  print "New affid (ie. 1114): "
+  newAffid = $stdin.gets.chomp()
+  if newAffid == "no"
+    newAffid = ""
+    p "no value"
+    break
+  end 
+end
+
+# INPUT NEW CIDs
+while newCid1.empty?
+  print "New CID 1 (ie. 4562548): "
+  newCid1 = $stdin.gets.chomp()
+  if newCid1 == "no"
+    newCid1 = ""
+    p "no value"
+    break
+  end 
+end
+
+while newCid2.empty?
+  print "New CID 2: "
+  newCid2 = $stdin.gets.chomp()
+  if newCid2 == "no"
+    newCid2 = ""
+    p "no value"
+    break
+  end 
+end
+
+while newCid3.empty?
+  print "New CID 3: "
+  newCid3 = $stdin.gets.chomp()
+  if newCid3 == "no"
+    newCid3 = ""
+    p "no value"
+    break
+  end 
+end
 
 puts 
 
 print "_________________NEW VALUES_________________\n\n\n"
 
+puts "oldPrice 1)" + oldPrice1
+puts "oldPrice 2)" + oldPrice2
+puts "oldPrice 3)" + oldPrice3
+
+puts "newPrice 1)" + newPrice1
+puts "newPrice 2)" + newPrice2
+puts "newPrice 3)" + newPrice3
+
+puts "strikePrice 1)" + strikePrice1
+puts "strikePrice 2)" + strikePrice2
+puts "strikePrice 3)" + strikePrice3
+
+puts "newStrikePrice 1)" + newStrikePrice1
+puts "newStrikePrice 2)" + newStrikePrice2
+puts "newStrikePrice 3)" + newStrikePrice3
 
 if !newPrice1.empty? || !newPrice2.empty? || !newPrice3.empty? then print "New Prices: " + "\n" else end
 if newPrice1.empty? then else puts "1) " + newPrice1 end
@@ -227,11 +361,13 @@ if newCid3.empty? then else puts "3) " + newCid3 end
 
 puts 
 
-
 # WHERE ALL CIDs/AFFID/CULTURE CODES ARE REPLACED
 files = Dir[your_file]
 files.each do |filename|
   file_content = IO.read(filename)
+
+    file_content.gsub!(topOldPrice, topNewPrice)
+    file_content.gsub!(secondNum, newSecondNum)
 
     if newCid1         == "" then print "No change to CID #1\n" else file_content.gsub!(oldCid1,newCid1) end
     if newCid2         == "" then print "No change to CID #2\n" else file_content.gsub!(oldCid2,newCid2) end
